@@ -21,6 +21,7 @@ class PlacedCrate(
         z += 0.5
     }
 
+    private var tick = 0
     var tickingTask: UnifiedTask? = null
 
     var chunkKey: ChunkKey = location.chunkKey
@@ -36,16 +37,19 @@ class PlacedCrate(
 
     private var item: Item? = null
 
-    internal fun tick(tick: Int) {
+    internal fun tick() {
         tickRandomReward(tick)
         tickHolograms(tick)
+        tick++
     }
 
-    internal fun tickAsync(tick: Int) {
-        tickParticles(tick)
+    internal fun tickAsync() {
+        tickParticles()
     }
 
     internal fun onRemove() {
+        tickingTask?.cancel()
+
         if (EcoCratesPlugin.instance.isEnabled) {
             EcoCratesPlugin.instance.scheduler.run(location) {
                 hologram.remove()
@@ -123,7 +127,7 @@ class PlacedCrate(
         }
     }
 
-    private fun tickParticles(tick: Int) {
+    private fun tickParticles() {
         for ((particle, animation) in crate.particles.toList()) { // Anti ConcurrentModification
             animation.spawnParticle(location, tick, particle)
         }
