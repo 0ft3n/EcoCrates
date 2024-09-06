@@ -59,7 +59,7 @@ class PlacedCrateListener(
         }
 
         preventDoubles.add(player.uniqueId)
-        plugin.scheduler.run { preventDoubles.remove(player.uniqueId) }
+        plugin.scheduler.run(player) { preventDoubles.remove(player.uniqueId) }
 
         event.isCancelled = true
     }

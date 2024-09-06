@@ -42,7 +42,7 @@ class RollQuick private constructor(
 
     override fun tick(tick: Int) {
         if (item.location.toVector().distance(end) < 0.1) {
-            item.teleport(end.toLocation(item.world))
+            item.teleportAsync(end.toLocation(item.world))
             item.velocity = Vector(0, 0, 0)
             suspendTicks++
 

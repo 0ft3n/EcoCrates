@@ -1,6 +1,7 @@
 package com.willfp.ecocrates.util;
 
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.ecocrates.EcoCratesPlugin
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
@@ -16,21 +17,23 @@ data class ConfiguredFirework(
     private val flicker: Boolean
 ) {
     fun launch(location: Location) {
-        val world = location.world ?: return
-        val firework = world.spawnEntity(location, EntityType.FIREWORK) as Firework
-        val meta = firework.fireworkMeta
-        meta.clearEffects()
-        meta.power = power
-        meta.addEffect(
-            FireworkEffect.builder()
-                .trail(trail)
-                .flicker(flicker)
-                .withColor(colors)
-                .withFade(fadeColors)
-                .with(type)
-                .build()
-        )
-        firework.fireworkMeta = meta
+        EcoCratesPlugin.instance.scheduler.run(location) {
+            val world = location.world ?: return@run
+            val firework = world.spawnEntity(location, EntityType.FIREWORK) as Firework
+            val meta = firework.fireworkMeta
+            meta.clearEffects()
+            meta.power = power
+            meta.addEffect(
+                FireworkEffect.builder()
+                    .trail(trail)
+                    .flicker(flicker)
+                    .withColor(colors)
+                    .withFade(fadeColors)
+                    .with(type)
+                    .build()
+            )
+            firework.fireworkMeta = meta
+        }
     }
 
     companion object {

@@ -49,6 +49,8 @@ object Crates {
             BY_ID[id] = crate
         }
 
-        PlacedCrates.reload()
+        plugin.scheduler.runGlobally {
+            PlacedCrates.reload()
+        }
     }
 }

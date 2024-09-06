@@ -1,3 +1,4 @@
+folia-supported: true
 name: EcoCrates
 version: ${projectVersion}
 main: com.willfp.ecocrates.EcoCratesPlugin

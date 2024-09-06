@@ -57,7 +57,7 @@ class Crate(
     val name = config.getFormattedString("name")
 
     val hologramFrames = config.getSubsections("placed.hologram.frames")
-        .map { HologramFrame(it.getInt("tick"), it.getFormattedStrings("lines")) }
+        .map { HologramFrame(it.getInt("tick"), it.getStrings("lines")) }
 
     val hologramTicks = config.getInt("placed.hologram.ticks")
 

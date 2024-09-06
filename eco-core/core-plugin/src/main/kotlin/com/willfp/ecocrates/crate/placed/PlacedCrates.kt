@@ -46,8 +46,10 @@ object PlacedCrates {
     }
 
     fun setAsCrate(location: Location, crate: Crate) {
-        loaded[location] = PlacedCrate(crate, location)
-        saveCrate(location, crate)
+        plugin.scheduler.run(location) {
+            loaded[location] = PlacedCrate(crate, location)
+            saveCrate(location, crate)
+        }
     }
 
     private fun saveCrate(location: Location, crate: Crate) {

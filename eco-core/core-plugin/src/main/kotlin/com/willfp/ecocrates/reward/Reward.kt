@@ -14,6 +14,7 @@ import com.willfp.eco.core.recipe.parts.EmptyTestableItem
 import com.willfp.eco.core.recipe.parts.MaterialTestableItem
 import com.willfp.eco.util.formatEco
 import com.willfp.eco.util.toNiceString
+import com.willfp.ecocrates.EcoCratesPlugin
 import com.willfp.ecocrates.crate.Crate
 import com.willfp.ecocrates.crate.PermissionMultipliers
 import org.bukkit.Bukkit
@@ -156,17 +157,21 @@ class Reward(
     }
 
     fun giveTo(player: Player) {
-        for (command in commands) {
-            Bukkit.dispatchCommand(
-                Bukkit.getConsoleSender(),
-                command.replace("%player%", player.name)
-            )
+        EcoCratesPlugin.instance.scheduler.runGlobally {
+            for (command in commands) {
+                Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    command.replace("%player%", player.name)
+                )
+            }
         }
 
-        DropQueue(player)
-            .addItems(items.map { it.item })
-            .forceTelekinesis()
-            .push()
+        EcoCratesPlugin.instance.scheduler.run(player) {
+            DropQueue(player)
+                .addItems(items.map { it.item })
+                .forceTelekinesis()
+                .push()
+        }
 
         messages.forEach { player.sendMessage(plugin.langYml.prefix + it) }
 

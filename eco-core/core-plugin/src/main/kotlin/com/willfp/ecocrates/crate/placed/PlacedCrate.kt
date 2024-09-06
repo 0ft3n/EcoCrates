@@ -1,8 +1,11 @@
 package com.willfp.ecocrates.crate.placed
 
 import com.willfp.eco.core.integrations.hologram.HologramManager
+import com.willfp.eco.core.scheduling.UnifiedTask
+import com.willfp.ecocrates.EcoCratesPlugin
 import com.willfp.ecocrates.crate.Crate
 import org.bukkit.Location
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Item
 import org.bukkit.util.Vector
 
@@ -17,7 +20,15 @@ class PlacedCrate(
         z += 0.5
     }
 
-    val chunkKey = location.chunk.key
+    var tickingTask: UnifiedTask? = null
+
+    lateinit var chunkKey: ChunkKey
+
+    init {
+        EcoCratesPlugin.instance.scheduler.run(location) {
+            chunkKey = location.chunk.key
+        }
+    }
 
     private val world = location.world!!
 
@@ -40,13 +51,19 @@ class PlacedCrate(
     }
 
     internal fun onRemove() {
-        hologram.remove()
-        item?.remove()
+        if (EcoCratesPlugin.instance.isEnabled) {
+            EcoCratesPlugin.instance.scheduler.run(location) {
+                hologram.remove()
+                item?.remove()
+            }
+        }
     }
 
     internal fun handleChunkUnload() {
-        hologram.remove()
-        item?.remove()
+        EcoCratesPlugin.instance.scheduler.run(location) {
+            hologram.remove()
+            item?.remove()
+        }
     }
 
     private fun tickHolograms(tick: Int) {
@@ -63,6 +80,10 @@ class PlacedCrate(
             @Suppress("USELESS_ELVIS")
             hologram.setContents(frameToShow.lines ?: emptyList())
         }
+    }
+
+    fun removeItem() {
+        item?.remove()
     }
 
     private fun tickRandomReward(tick: Int) {
@@ -103,7 +124,7 @@ class PlacedCrate(
             ensureItemSpawned()
 
             item?.itemStack = crate.rewards.random().getDisplay()
-            item?.teleport(location.clone().add(0.0, crate.randomRewardHeight, 0.0))
+            item?.teleportAsync(location.clone().add(0.0, crate.randomRewardHeight, 0.0))
         }
     }
 

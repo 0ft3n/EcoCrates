@@ -8,13 +8,16 @@ class CrateDisplay(
     private var tick = 0
 
     fun start() {
-        plugin.scheduler.runTimer(1, 1) { tick() }
-        plugin.scheduler.runAsyncTimer(1, 1) { tickAsync() }
+        plugin.scheduler.runTimerGlobally(1, 1) { tick() }
+        plugin.scheduler.runTimerAsync(1, 1) { tickAsync() }
     }
 
     private fun tick() {
         for (crate in PlacedCrates.values()) {
-            crate.tick(tick)
+            crate.tickingTask?.cancel()
+            crate.tickingTask = plugin.scheduler.runTimer(crate.location, 1, 1) {
+                crate.tick(tick)
+            }
         }
 
         tick++

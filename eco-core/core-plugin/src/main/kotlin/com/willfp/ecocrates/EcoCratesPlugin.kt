@@ -44,7 +44,7 @@ class EcoCratesPlugin : EcoPlugin() {
 
     override fun handleReload() {
         // Extra reload
-        this.scheduler.runLater(2) {
+        this.scheduler.runLaterGlobally(2) {
             Rewards.update(this)
             Crates.update(this)
         }
