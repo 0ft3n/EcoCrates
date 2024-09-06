@@ -4,6 +4,7 @@ import com.willfp.eco.core.integrations.hologram.HologramManager
 import com.willfp.eco.core.scheduling.UnifiedTask
 import com.willfp.ecocrates.EcoCratesPlugin
 import com.willfp.ecocrates.crate.Crate
+import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Item
@@ -22,13 +23,7 @@ class PlacedCrate(
 
     var tickingTask: UnifiedTask? = null
 
-    lateinit var chunkKey: ChunkKey
-
-    init {
-        EcoCratesPlugin.instance.scheduler.run(location) {
-            chunkKey = location.chunk.key
-        }
-    }
+    var chunkKey: ChunkKey = location.chunkKey
 
     private val world = location.world!!
 
