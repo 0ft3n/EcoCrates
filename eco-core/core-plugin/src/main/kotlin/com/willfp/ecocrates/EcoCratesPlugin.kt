@@ -7,6 +7,7 @@ import com.willfp.eco.core.config.TransientConfig
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.display.DisplayModule
 import com.willfp.eco.core.integrations.IntegrationLoader
+import com.willfp.eco.core.scheduling.UnifiedTask
 import com.willfp.ecocrates.commands.CommandEcoCrates
 import com.willfp.ecocrates.config.CrateConfig
 import com.willfp.ecocrates.config.RewardsYml
@@ -25,6 +26,7 @@ import com.willfp.ecocrates.reward.Rewards
 import com.willfp.ecocrates.util.PlacedCrateListener
 import org.bukkit.event.Listener
 import java.io.File
+import java.util.Collections
 import java.util.zip.ZipFile
 
 class EcoCratesPlugin : EcoPlugin() {
@@ -42,14 +44,19 @@ class EcoCratesPlugin : EcoPlugin() {
         PlacedCrates.removeAll()
     }
 
+    private val tasks = Collections.synchronizedList(mutableListOf<UnifiedTask>())
+
     override fun handleReload() {
+        tasks.forEach { it.cancel() }
+        tasks.clear()
+
         // Extra reload
-        this.scheduler.runLaterGlobally(2) {
+        tasks.add(this.scheduler.runLaterGlobally(2) {
             Rewards.update(this)
             Crates.update(this)
-        }
+        })
 
-        CrateDisplay(this).start()
+        tasks.addAll(CrateDisplay(this).start())
     }
 
     private fun getDefaultConfigNames(directory: String): Collection<String> {

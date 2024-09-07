@@ -4,6 +4,7 @@ import com.willfp.eco.core.integrations.hologram.HologramManager
 import com.willfp.eco.core.scheduling.UnifiedTask
 import com.willfp.ecocrates.EcoCratesPlugin
 import com.willfp.ecocrates.crate.Crate
+import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Item
@@ -20,15 +21,10 @@ class PlacedCrate(
         z += 0.5
     }
 
+    private var tick = 0
     var tickingTask: UnifiedTask? = null
 
-    lateinit var chunkKey: ChunkKey
-
-    init {
-        EcoCratesPlugin.instance.scheduler.run(location) {
-            chunkKey = location.chunk.key
-        }
-    }
+    var chunkKey: ChunkKey = location.chunkKey
 
     private val world = location.world!!
 
@@ -41,16 +37,19 @@ class PlacedCrate(
 
     private var item: Item? = null
 
-    internal fun tick(tick: Int) {
+    internal fun tick() {
         tickRandomReward(tick)
         tickHolograms(tick)
+        tick++
     }
 
-    internal fun tickAsync(tick: Int) {
-        tickParticles(tick)
+    internal fun tickAsync() {
+        tickParticles()
     }
 
     internal fun onRemove() {
+        tickingTask?.cancel()
+
         if (EcoCratesPlugin.instance.isEnabled) {
             EcoCratesPlugin.instance.scheduler.run(location) {
                 hologram.remove()
@@ -128,7 +127,7 @@ class PlacedCrate(
         }
     }
 
-    private fun tickParticles(tick: Int) {
+    private fun tickParticles() {
         for ((particle, animation) in crate.particles.toList()) { // Anti ConcurrentModification
             animation.spawnParticle(location, tick, particle)
         }
